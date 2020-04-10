@@ -67,11 +67,55 @@ More Details at:
 ### CI/CD Using Jenkins Pipeline Feature
 
 Setup Jenkins using Docker container from: https://hub.docker.com/r/jenkins/jenkins
-	- ```docker pull jenkins/jenkins```
-   	- Fireup Jenkins container by executing command below. ```sudo docker run -p 8080:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts```
-   	- this will automatically create a 'jenkins_home' docker volume on the host machine, that will survive the container stop/restart/deletion. Instructions here: https://github.com/jenkinsci/docker/blob/master/README.md
-	- Follow installation steps to Install Jenkins. 
-	- Note that we make use of Jenkins pipeline and following Declarative syntax. ``Jenkinsfile`` is already checked into root of project.   	
+- ```docker pull jenkins/jenkins```
+- Fireup Jenkins container by executing command below. ```sudo docker run -p 8080:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts```
+- this will automatically create a 'jenkins_home' docker volume on the host machine, that will survive the container stop/restart/deletion. Instructions here: https://github.com/jenkinsci/docker/blob/master/README.md
+- Follow installation steps to Install Jenkins. 
+- Note that we make use of Jenkins pipeline and following Declarative syntax. ``Jenkinsfile`` is already checked into root of project.   	
+
+### JWT/OAuth2 Feature
+- Signup
+```
+curl --location --request POST 'http://localhost:5050/signup' \
+   --header 'Content-Type: application/x-www-form-urlencoded' \
+   --data-urlencode 'username=s.ali.abbas.raza@gmail.com' \
+   --data-urlencode 'password=ssafasdf'
+```   
+- Login / JWT Authentication
+```
+curl --location --request POST 'http://localhost:5050/oauth/token' \
+    --header 'Authorization: Basic c3ByaW5nYm9vdC1zYW1wbGU6c2VjcmV0' \
+    --header 'Content-Type: application/x-www-form-urlencoded' \
+    --data-urlencode 'username=s.ali.abbas.raza@gmail.com' \
+    --data-urlencode 'password=ssafasdf' \
+    --data-urlencode 'grant_type=password'
+```   
+- Resource Api 
+<br>Use `access_token` return by login api response
+```
+curl --location --request GET 'http://localhost:5050/api/user' \
+    --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsiYXBpIl0sInVzZXJfbmFtZSI6InMuYWxpLmFiYmFzLnJhemFAZ21haWwuY29tIiwic2NvcGUiOlsicmVhZCIsIndyaXRlIl0sImV4cCI6MTU4NjUzNDQ2NywiYXV0aG9yaXRpZXMiOlsiQURNSU4iXSwianRpIjoiYTZiNmU1OWMtODRmZC00OTUxLTkzY2ItODMxOWFhYzE1YzY4IiwiY2xpZW50X2lkIjoic3ByaW5nYm9vdC1zYW1wbGUifQ.gZOk4E2VtePyldApXXw2qfMnNj3WUlBX19eqjPfpi9w' \
+    --header 'Content-Type: text/html' \
+    --data-raw '{
+        "username":"s.ali.abbas.raza@gmail.com",
+        "password":123456
+    }'
+```   
+- Refresh Authentication 
+<br>Authentication expire after mentioned expiry in login response. Use `refresh_token` return by login api response to renew authentication without password.
+```
+curl --location --request GET 'http://localhost:5050/api/user' \
+    --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsiYXBpIl0sInVzZXJfbmFtZSI6InMuYWxpLmFiYmFzLnJhemFAZ21haWwuY29tIiwic2NvcGUiOlsicmVhZCIsIndyaXRlIl0sImV4cCI6MTU4NjUzNDQ2NywiYXV0aG9yaXRpZXMiOlsiQURNSU4iXSwianRpIjoiYTZiNmU1OWMtODRmZC00OTUxLTkzY2ItODMxOWFhYzE1YzY4IiwiY2xpZW50X2lkIjoic3ByaW5nYm9vdC1zYW1wbGUifQ.gZOk4E2VtePyldApXXw2qfMnNj3WUlBX19eqjPfpi9w' \
+    --header 'Content-Type: text/html' \
+    --data-raw '{
+        "username":"s.ali.abbas.raza@gmail.com",
+        "password":123456
+    }'
+```   
+
+More Details at:
+<br>https://www.toptal.com/spring/spring-boot-oauth2-jwt-rest-protection
+<br>https://docs.spring.io/spring-security/site/docs/5.0.5.RELEASE/reference/htmlsingle/#what-is-acegi-security
 
 ### Features to come:
 - Service Registory, Discovery and Invocation using **Consul**
