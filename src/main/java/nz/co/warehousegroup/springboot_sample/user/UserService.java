@@ -1,12 +1,12 @@
 package nz.co.warehousegroup.springboot_sample.user;
 
-import java.util.Optional;
+import java.util.List;
 
 public interface UserService {
 
-    Iterable<User> getUsersByIds();
+    List<UserDto> getUsersByIds();
 
-    Optional<User> get(Long id);
+    UserDto get(Long id);
 
-    User signup(String email, String password);
+    UserDto signup(UserDto user);
 }

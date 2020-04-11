@@ -76,41 +76,39 @@ Setup Jenkins using Docker container from: https://hub.docker.com/r/jenkins/jenk
 ### JWT/OAuth2 Feature
 - Signup
 ```
-curl --location --request POST 'http://localhost:5050/signup' \
-   --header 'Content-Type: application/x-www-form-urlencoded' \
-   --data-urlencode 'username=s.ali.abbas.raza@gmail.com' \
-   --data-urlencode 'password=ssafasdf'
+curl --location --request POST 'http://localhost:8080/signup' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "username": "s.ali.abbas.raza@gmail.com",
+    "password": 123456,
+    "roles": [
+        "USER","ADMIN"
+    ]
+}'
 ```   
 - Login / JWT Authentication
 ```
-curl --location --request POST 'http://localhost:5050/oauth/token' \
-    --header 'Authorization: Basic c3ByaW5nYm9vdC1zYW1wbGU6c2VjcmV0' \
-    --header 'Content-Type: application/x-www-form-urlencoded' \
-    --data-urlencode 'username=s.ali.abbas.raza@gmail.com' \
-    --data-urlencode 'password=ssafasdf' \
-    --data-urlencode 'grant_type=password'
+curl --location --request POST 'http://localhost:8080/oauth/token' \
+--header 'Authorization: Basic c3ByaW5nYm9vdC1zYW1wbGU6c2VjcmV0' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--data-urlencode 'username=s.ali.abbas.raza@gmail.com' \
+--data-urlencode 'password=123456' \
+--data-urlencode 'grant_type=password'
 ```   
 - Resource Api 
 <br>Use `access_token` return by login api response
 ```
-curl --location --request GET 'http://localhost:5050/api/user' \
-    --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsiYXBpIl0sInVzZXJfbmFtZSI6InMuYWxpLmFiYmFzLnJhemFAZ21haWwuY29tIiwic2NvcGUiOlsicmVhZCIsIndyaXRlIl0sImV4cCI6MTU4NjUzNDQ2NywiYXV0aG9yaXRpZXMiOlsiQURNSU4iXSwianRpIjoiYTZiNmU1OWMtODRmZC00OTUxLTkzY2ItODMxOWFhYzE1YzY4IiwiY2xpZW50X2lkIjoic3ByaW5nYm9vdC1zYW1wbGUifQ.gZOk4E2VtePyldApXXw2qfMnNj3WUlBX19eqjPfpi9w' \
-    --header 'Content-Type: text/html' \
-    --data-raw '{
-        "username":"s.ali.abbas.raza@gmail.com",
-        "password":123456
-    }'
+curl --location --request GET 'http://localhost:8080/api/user' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsiYXBpIl0sInVzZXJfbmFtZSI6InMuYWxpLmFiYmFzLnJhemFAZ21haWwuY29tIiwic2NvcGUiOlsicmVhZCIsIndyaXRlIl0sImV4cCI6MTU4NjY0NjAwMCwiYXV0aG9yaXRpZXMiOlsiVVNFUiIsIkFETUlOIl0sImp0aSI6IjJlNWU2N2EwLTgwYTQtNDU1ZS1hODVhLTIxZjdkNzU1NDZkOCIsImNsaWVudF9pZCI6InNwcmluZ2Jvb3Qtc2FtcGxlIn0.eO-QSqNC4wA2wV6CSmvPTaFznMOHXs3h0fP1vz_JrZQ'
 ```   
 - Refresh Authentication 
 <br>Authentication expire after mentioned expiry in login response. Use `refresh_token` return by login api response to renew authentication without password.
 ```
-curl --location --request GET 'http://localhost:5050/api/user' \
-    --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsiYXBpIl0sInVzZXJfbmFtZSI6InMuYWxpLmFiYmFzLnJhemFAZ21haWwuY29tIiwic2NvcGUiOlsicmVhZCIsIndyaXRlIl0sImV4cCI6MTU4NjUzNDQ2NywiYXV0aG9yaXRpZXMiOlsiQURNSU4iXSwianRpIjoiYTZiNmU1OWMtODRmZC00OTUxLTkzY2ItODMxOWFhYzE1YzY4IiwiY2xpZW50X2lkIjoic3ByaW5nYm9vdC1zYW1wbGUifQ.gZOk4E2VtePyldApXXw2qfMnNj3WUlBX19eqjPfpi9w' \
-    --header 'Content-Type: text/html' \
-    --data-raw '{
-        "username":"s.ali.abbas.raza@gmail.com",
-        "password":123456
-    }'
+curl --location --request POST 'http://localhost:8080/oauth/token' \
+--header 'Authorization: Basic c3ByaW5nYm9vdC1zYW1wbGU6c2VjcmV0' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--data-urlencode 'refresh_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsiYXBpIl0sInVzZXJfbmFtZSI6InMuYWxpLmFiYmFzLnJhemFAZ21haWwuY29tIiwic2NvcGUiOlsicmVhZCIsIndyaXRlIl0sImF0aSI6ImY1ZjVkMzVkLTg1YTAtNDgyMy1iMDAxLTM3YzFiNzgxM2VmZiIsImV4cCI6MTU4NjY0NjQ0OCwiYXV0aG9yaXRpZXMiOlsiVVNFUiIsIkFETUlOIl0sImp0aSI6IjMzNmMwZjJiLWUzMjQtNDdiNS04NTViLTkwMjVmZDkxYjdkYyIsImNsaWVudF9pZCI6InNwcmluZ2Jvb3Qtc2FtcGxlIn0.WPYybHRZk3OVp4cirpzv0m15lowoO6EciBl8c5w10Tk' \
+--data-urlencode 'grant_type=refresh_token'
 ```   
 
 More Details at:

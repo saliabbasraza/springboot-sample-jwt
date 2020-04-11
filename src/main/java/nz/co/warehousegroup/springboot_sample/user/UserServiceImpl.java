@@ -1,34 +1,58 @@
 package nz.co.warehousegroup.springboot_sample.user;
 
+import nz.co.warehousegroup.springboot_sample.role.Role;
+import nz.co.warehousegroup.springboot_sample.role.RoleRepository;
+import nz.co.warehousegroup.springboot_sample.role.UserRole;
+import nz.co.warehousegroup.springboot_sample.role.UserRolesRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import javax.persistence.EntityNotFoundException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository repository;
-    private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final UserRolesRepository userRoleRepository;
+    private final UserMapper userMapper;
 
-    public UserServiceImpl(UserRepository repository, PasswordEncoder passwordEncoder) {
-        this.repository = repository;
-        this.passwordEncoder = passwordEncoder;
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, UserRolesRepository userRoleRepository, UserMapper userMapper) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.userRoleRepository = userRoleRepository;
+        this.userMapper = userMapper;
     }
 
     @Override
-    public Iterable<User> getUsersByIds() {
-        return repository.findAll();
+    public List<UserDto> getUsersByIds() {
+        Collection<User> users = (Collection<User>) userRepository.findAll();
+        return users.stream().map(x -> this.userMapper.convertToDto(x, x.getUserRoles())).collect(Collectors.toList());
     }
 
     @Override
-    public Optional<User> get(Long id) {
-        return repository.findById(id);
+    public UserDto get(Long id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User not found: " + id));
+        return userMapper.convertToDto(user, user.getUserRoles());
     }
 
     @Override
-    public User signup(String username, String password) {
-        User u = new User(null, username, passwordEncoder.encode(password), Role.ADMIN);
-        return repository.save(u);
+    public UserDto signup(UserDto userDto) {
+        List<Role> roles = roleRepository.findAllByNameIn(userDto.getRoles());
+        User user = userMapper.convertToEntity(userDto);
+        userRepository.save(user);
+
+        List userRoles = new ArrayList();
+        for (Role role : roles) {
+            UserRole userRole = new UserRole(user, role);
+            userRoleRepository.save(userRole);
+            userRoles.add(userRole);
+        }
+
+        return userMapper.convertToDto(user, userRoles);
     }
 }
